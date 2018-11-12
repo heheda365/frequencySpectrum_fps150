@@ -1,0 +1,42 @@
+#include "delay.h"
+#include "timer.h"
+#include "voice.h"
+#include "lcd_ex.h"
+#include "LCD_Driver.h"
+
+static uint64_t timeLast = 0;
+uint16_t fps = 0;
+uint16_t fpsCut = 0;
+
+int high = 240 * 320;
+int high1 = 240 * 160;
+
+int main(void){
+	SystemInit();			//初始化RCC 设置系统主频为72MHZ
+	delay_init();	     	//延时初始化 
+	TIM3_Int_Init(99,7199);	//10Khz的计数频率，计数到100为10ms  
+	LCD_Init();
+	signalGatherInit();
+	
+	LCD_Scan_Dir(U2D_L2R);					//扫描方向
+	LCD_SetCursor(0, 0);       				//设置光标位置
+	LCD_WriteRAM_Prepare();     			//开始写入GRAM
+	
+	while(1)
+	{	
+		dsp();
+		displayFLineAndVWave();
+		fpsCut ++;
+		if(getTime() - timeLast > 100){		// 1s
+			timeLast = getTime();
+			fps = fpsCut;
+			fpsCut = 0;
+		}
+	}
+}
+
+
+
+
+
+

@@ -1,0 +1,45 @@
+TFT数据线
+
+D0 - PD14
+D1 - PD15
+D2 - PD0
+D3 - PD1
+D4 - PE7
+D5 - PE8
+D6 - PE9
+D7 - PE10
+D8 - PE11
+D9 - PE12
+D10 - PE13
+D11 - PE14
+D12 - PE15
+D13 - PD8
+D14 - PD9
+D15 - PD10
+
+TFT控制线
+
+背光PB0
+
+FSMC NOE：输出使能，连接LCD的RD脚
+RD - PD4
+FSMC NWE：写使能，连接LCD的RW脚
+RW - PD5
+
+RS - 地址线表示
+RS - PG0
+CS - PG12;
+
+// 触摸
+CS - B12
+SCK - B13
+MISO - B14 
+MOSI - B15
+IRQ -  PG1
+
+// ADC 
+
+
+// DAC
+A4
+A5

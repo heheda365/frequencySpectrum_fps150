@@ -1,0 +1,98 @@
+#include "iFlash.h"
+
+
+/********************************************************************************************************** 
+** Function name:      FLASH_ReadHalfWord
+** Descriptions:       读取指定地址的半字数据
+** input parameters:   u32 addr：要读的地址
+** output parameters:  无
+** Returned value:     无
+**********************************************************************************************************/
+u16 FLASH_ReadHalfWord(u32 addr)
+{
+	return *(vu16*)addr; 
+}
+
+/********************************************************************************************************** 
+** Function name:      FLASH_Write
+** Descriptions:       Flash写
+** input parameters:   u32 Addr：起始地址
+                       u16 *p ： 要写的内容（byte）
+                       u16 Num： 要写的半字数目 
+** output parameters:  无
+** Returned value:     无
+**********************************************************************************************************/
+void FLASH_Write(u32 Addr,u8 *p,u16 Num)
+{	
+	u16 i;
+	FLASH_Unlock();
+	FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
+	FLASH_ErasePage(Addr);
+	for(i = 0;i < Num;i++){
+		FLASH_ProgramHalfWord(Addr,*(p + i));
+		Addr ++;
+	} 
+	FLASH_Lock();
+}
+
+//
+// FLASH 中读数据
+//
+void FLASH_Read(u32 ReadAddr,u8 *pBuffer,u16 NumToRead)
+{
+	while(NumToRead)
+	{
+		*pBuffer++=*(vu8*)(ReadAddr++);	
+		NumToRead--;
+	}
+}  
+
+// 
+// FLASH 中读一个byte
+//
+u8 FLASH_ReadOneByte(u32 ReadAddr){
+	return *(vu8*)(ReadAddr++);
+}
+
+//
+// 向FLASH 中写入一个byte
+//
+void FLASH_WriteOneByte(u32 WriteAddr,u8 DataToWrite){
+	FLASH_Unlock();
+	FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
+	FLASH_ErasePage(WriteAddr);
+	FLASH_ProgramHalfWord(WriteAddr,DataToWrite);
+	
+	FLASH_Lock();
+}
+
+//该函数用于写入16bit或者32bit的数据.
+//WriteAddr  :开始写入的地址  
+//DataToWrite:数据数组首地址
+//Len        :要写入数据的长度2,4
+void FLASH_WriteLenByte(u32 WriteAddr,u32 DataToWrite,u8 Len)
+{  	
+	u8 t;
+	for(t=0;t<Len;t++)
+	{
+		FLASH_WriteOneByte(WriteAddr+t,(DataToWrite>>(8*t))&0xff);
+	}												    
+}
+//里面的指定地址开始读出长度为Len的数据
+//该函数用于读出16bit或者32bit的数据.
+//ReadAddr   :开始读出的地址 
+//返回值     :数据
+//Len        :要读出数据的长度2,4
+u32 FLASH_ReadLenByte(u32 ReadAddr,u8 Len)
+{  	
+	u8 t;
+	u32 temp=0;
+	for(t=0;t<Len;t++)
+	{
+		temp<<=8;
+		temp+=FLASH_ReadOneByte(ReadAddr+Len-t-1); 	 				   
+	}
+	return temp;												    
+}
+
+

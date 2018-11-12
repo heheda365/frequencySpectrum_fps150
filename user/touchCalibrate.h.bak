@@ -1,0 +1,13 @@
+#ifndef __TOUCHCALIBRATE_H
+#define __TOUCHCALIBRATE_H
+
+typedef struct {
+	int AD_LEFT;
+  int AD_BOTTOM;
+  int AD_TOP;
+  int AD_RIGHT;
+}TouchScreenParam;   //´¥ÃþÆÁ²ÎÊý
+
+
+#endif
+

@@ -1,0 +1,68 @@
+#include "iFlash.h"
+#include "touchCalibrate.h"
+
+#define _ID  0x5555
+TouchScreenParam iTouchScreenParam;
+//
+// 屏幕校准函数
+// cmd = 0，判断校准，cmd = 1；强制校准
+//
+void touchCalibrate(u8 cmd){
+	switch(cmd){
+		case 0:
+			iTouchScreenParam.id = FLASH_ReadHalfWord(Addr_Base);
+			if(iTouchScreenParam.id == _id ){                      //不需要校准
+				iTouchScreenParam.AD_LEFT = FLASH_ReadHalfWord(Addr_Base+2);
+				iTouchScreenParam.AD_RIGHT = FLASH_ReadHalfWord(Addr_Base+4);
+				iTouchScreenParam.AD_TOP = FLASH_ReadHalfWord(Addr_Base+6);
+				iTouchScreenParam.AD_BOTTOM = FLASH_ReadHalfWord(Addr_Base+8);
+				// 用读到的参数设置GUI
+				GUI_TOUCH_Calibrate(GUI_COORD_X, 0, 239, iTouchScreenParam.AD_LEFT, iTouchScreenParam.AD_RIGHT);
+				GUI_TOUCH_Calibrate(GUI_COORD_Y, 0, 319, iTouchScreenParam.AD_TOP, iTouchScreenParam.AD_BOTTOM);
+			} else {
+				TouchCalibration();
+			}
+			break;
+			
+		case 1:
+			break;
+		
+		default:
+			break;
+	}
+}
+
+void touchTest(void){
+	GUI_CURSOR_Show();
+  GUI_CURSOR_Select(&GUI_CursorCrossL);
+  GUI_SetBkColor(GUI_WHITE);
+  GUI_SetColor(GUI_BLACK);
+  GUI_Clear();
+  GUI_DispString("Measurement of\nA/D converter values");
+  while (1) {
+    GUI_PID_STATE TouchState;
+    int xPhys, yPhys;
+    GUI_TOUCH_GetState(&TouchState);  /* Get the touch position in pixel */
+    xPhys = GUI_TOUCH_GetxPhys();     /* Get the A/D mesurement result in x */
+    yPhys = GUI_TOUCH_GetyPhys();     /* Get the A/D mesurement result in y */
+    /* Display the measurement result */
+    GUI_SetColor(GUI_BLUE);
+    GUI_DispStringAt("Analog input:\n", 0, 20);
+    GUI_GotoY(GUI_GetDispPosY() + 2);
+    GUI_DispString("x:");
+    GUI_DispDec(xPhys, 4);
+    GUI_DispString(", y:");
+    GUI_DispDec(yPhys, 4);
+    /* Display the according position */
+    GUI_SetColor(GUI_RED);
+    GUI_GotoY(GUI_GetDispPosY() + 4);
+    GUI_DispString("\nPosition:\n");
+    GUI_GotoY(GUI_GetDispPosY() + 2);
+    GUI_DispString("x:");
+    GUI_DispDec(TouchState.x,4);
+    GUI_DispString(", y:");
+    GUI_DispDec(TouchState.y,4);
+    /* Wait a while */
+    GUI_Delay(100);
+  };
+}

@@ -1,0 +1,8 @@
+#ifndef ADC_DMA_H__
+#define ADC_DMA_H__
+
+void ADC1_DMAInit(uint16_t * ADCConvertedValueBuf, uint16_t bufSize)
+
+
+#endif
+
